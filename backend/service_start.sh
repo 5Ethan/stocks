@@ -1,1 +1,2 @@
-nohup python main.py > $PWD/logs/stocks-backend.log 2>&1 &
+nohup python main.py > stocks-backend.log 2>&1 &
+
