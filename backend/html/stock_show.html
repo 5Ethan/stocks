@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>趋势图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: Arial, sans-serif;
+      }
+      .selectors {
+        margin: 20px;
+      }
+      .selectors select {
+        padding: 10px;
+        margin: 0 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      #chart {
+        width: 80%;
+        height: 500px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="selectors">
+      <label for="stock-list">选择股票：</label>
+      <select id="stock-list"></select>
+      <label for="last-day-count">选择天数：</label>
+      <select id="last-day-count">
+        <option value="7">最近7天</option>
+        <option value="14">最近14天</option>
+        <option value="21" selected>最近21天</option>
+      </select>
+    </div>
+    <div id="chart"></div>
+
+    <script>
+      var chart = echarts.init(document.getElementById("chart"));
+
+      // 定义字段名称到中文名称的映射
+      var fieldNameMap = {
+        open: "开盘价",
+        high: "最高价",
+        low: "最低价",
+        close: "收盘价",
+        preclose: "前收盘价",
+        volume: "成交量",
+        amount: "成交额",
+        turn: "换手率",
+        pctChg: "涨跌幅",
+        peTTM: "市盈率(TTM)",
+        pbMRQ: "市净率(MRQ)",
+        psTTM: "市销率(TTM)",
+        pcfNcfTTM: "市现率(TTM)",
+      };
+
+      var currentUrl = window.location.origin;
+
+      function fetchStockList() {
+        fetch(`${currentUrl}/api/stocks`)
+          .then((response) => response.json())
+          .then((data) => {
+            var stockList = document.getElementById("stock-list");
+            stockList.innerHTML = ""; // 清空现有选项
+            data.forEach((stock) => {
+              var option = document.createElement("option");
+              option.value = stock.code;
+              option.text = stock.name;
+              stockList.appendChild(option);
+            });
+
+            // 获取初始的股票代码和天数值
+            var initialStockCode = stockList.value;
+            var initialDayCount =
+              document.getElementById("last-day-count").value;
+
+            // 初始化加载初始股票和天数的数据
+            fetchData(initialStockCode, initialDayCount);
+          })
+          .catch((error) => {
+            console.error("Error fetching stock list:", error);
+          });
+      }
+
+      function fetchData(stock_code, lastDayCount) {
+        fetch(
+          `${currentUrl}/api/stock/echarts/line/${stock_code}?last_day_count=${lastDayCount}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            data = data.data;
+            var seriesData = data.series.map((seriesItem) => ({
+              ...seriesItem,
+              name: fieldNameMap[seriesItem.name] || seriesItem.name, // 使用映射表获取中文名称
+            }));
+
+            var stockName = document.querySelector(
+              `#stock-list option[value="${stock_code}"]`
+            ).text;
+
+            var option = {
+              title: {
+                text: `${stock_code} - ${stockName} - 最近${lastDayCount}天`,
+                left: "center", // 将标题居中
+              },
+              tooltip: {
+                trigger: "axis",
+              },
+              legend: {
+                data: seriesData.map((item) => item.name), // 设置图例的中文名称
+                bottom: 10, // 将图例位置设置到图表下方
+              },
+              grid: {
+                bottom: 80, // 确保图表和图例之间有足够的空间
+              },
+              xAxis: {
+                type: "category",
+                data: data.xAxis,
+              },
+              yAxis: {
+                type: "value",
+              },
+              series: seriesData,
+            };
+
+            // 使用指定的配置项和数据显示图表
+            chart.setOption(option);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
+      }
+
+      // 监听选择框变化事件（天数选择）
+      document
+        .getElementById("last-day-count")
+        .addEventListener("change", function (event) {
+          var selectedStockCode = document.getElementById("stock-list").value;
+          var selectedDayCount = event.target.value;
+          fetchData(selectedStockCode, selectedDayCount);
+        });
+
+      // 监听选择框变化事件（股票选择）
+      document
+        .getElementById("stock-list")
+        .addEventListener("change", function (event) {
+          var selectedStockCode = event.target.value;
+          var selectedDayCount =
+            document.getElementById("last-day-count").value;
+          fetchData(selectedStockCode, selectedDayCount);
+        });
+
+      // 页面加载时请求股票列表
+      fetchStockList();
+    </script>
+  </body>
+</html>

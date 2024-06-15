@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>股票列表管理</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+    .form-container {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+    .form-container label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .form-container input[type="text"], .form-container input[type="submit"], .form-container button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .form-container input[type="submit"], .form-container button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    .form-container input[type="submit"]:hover, .form-container button:hover {
+      background-color: #45a049;
+    }
+    .stock-list-container {
+      margin-top: 20px;
+      width: 300px;
+    }
+    .stock-list-container ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    .stock-list-container li {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .stock-list-container li .delete-button {
+      margin-left: 10px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .stock-list-container li .delete-button:hover {
+      background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <label for="stock-code">股票代码：</label>
+    <input type="text" id="stock-code" name="stock-code" required>
+    <label for="stock-name">股票名称：</label>
+    <input type="text" id="stock-name" name="stock-name" required>
+    <input type="submit" value="新增股票" onclick="addStock()">
+  </div>
+
+  <div class="stock-list-container">
+    <h3>股票列表</h3>
+    <ul id="stock-list"></ul>
+  </div>
+
+  <script>
+    var currentUrl = window.location.origin;
+
+    function fetchStockList() {
+      axios.get(`${currentUrl}/api/stocks`)
+        .then((response) => {
+          var stockList = document.getElementById("stock-list");
+          stockList.innerHTML = ''; // 清空现有列表
+          response.data.forEach(stock => {
+            var li = document.createElement("li");
+            li.textContent = `${stock.code} - ${stock.name}`;
+            var deleteButton = document.createElement("button");
+            deleteButton.textContent = "删除";
+            deleteButton.className = "delete-button";
+            deleteButton.addEventListener("click", function() {
+              deleteStock(stock.code);
+            });
+            li.appendChild(deleteButton);
+            stockList.appendChild(li);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching stock list:", error);
+        });
+    }
+
+    function addStock() {
+      var stockCode = document.getElementById("stock-code").value;
+      var stockName = document.getElementById("stock-name").value;
+      axios.post(baseURL, { code: stockCode, name: stockName })
+        .then((response) => {
+          console.log("Stock added successfully:", response.data);
+          fetchStockList(); // 添加成功后重新获取股票列表
+        })
+        .catch((error) => {
+          console.error("Error adding stock:", error);
+        });
+    }
+
+    function deleteStock(stockCode) {
+      axios.delete(`${baseURL}/${stockCode}`)
+        .then((response) => {
+          console.log("Stock deleted successfully:", response.data);
+          fetchStockList(); // 删除成功后重新获取股票列表
+        })
+        .catch((error) => {
+          console.error("Error deleting stock:", error);
+        });
+    }
+
+    // 页面加载时获取股票列表
+    fetchStockList();
+  </script>
+</body>
+</html>
