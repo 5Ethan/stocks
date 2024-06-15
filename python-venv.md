@@ -7,9 +7,21 @@ bash Miniconda3-latest-Linux-x86_64.sh
 
 /root/miniconda3/bin/conda init
 
-conda create -n py312 python=3.12
+conda create -n py311 python=3.11
 
-conda activate py312
+conda activate py311
 
-conda deactivate py312
+conda deactivate 
+```
+
+
+```shell
+git add .
+
+git commit -m 'init aliyun'
+
+git push -u aliyun master
+
+git checkout -b master
+
 ```
