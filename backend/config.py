@@ -1,10 +1,10 @@
-import os
-
 PORT = 8888
 
-g_data_dir = os.path.expanduser("~") if os.name == 'posix' else os.path.dirname(__file__)
-
-g_stock_info_list = [
-    {"code": "603628", "name": "清源股份"},
-    {"code": "600000", "name": "浦发银行"},
-]
+db_config = {
+    "host": "47.121.119.252",
+    "port": 3306,
+    "user": "first",
+    "password": "firstDatabase",
+    "db": "init_db",
+    "autocommit": True,
+}

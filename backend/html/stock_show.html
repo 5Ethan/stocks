@@ -71,8 +71,9 @@
             stockList.innerHTML = ""; // 清空现有选项
             data.forEach((stock) => {
               var option = document.createElement("option");
-              option.value = stock.code;
-              option.text = stock.name;
+              option.value = stock.stock_code;
+              option.text = stock.stock_name;
+              console.log(stock)
               stockList.appendChild(option);
             });
 

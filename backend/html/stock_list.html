@@ -93,12 +93,12 @@
           stockList.innerHTML = ''; // 清空现有列表
           response.data.forEach(stock => {
             var li = document.createElement("li");
-            li.textContent = `${stock.code} - ${stock.name}`;
+            li.textContent = `${stock.stock_code} - ${stock.stock_name}`;
             var deleteButton = document.createElement("button");
             deleteButton.textContent = "删除";
             deleteButton.className = "delete-button";
             deleteButton.addEventListener("click", function() {
-              deleteStock(stock.code);
+              deleteStock(stock.stock_code);
             });
             li.appendChild(deleteButton);
             stockList.appendChild(li);
@@ -112,7 +112,7 @@
     function addStock() {
       var stockCode = document.getElementById("stock-code").value;
       var stockName = document.getElementById("stock-name").value;
-      axios.post(baseURL, { code: stockCode, name: stockName })
+      axios.post(`${currentUrl}/api/stocks`, { stock_code: stockCode, stock_name: stockName })
         .then((response) => {
           console.log("Stock added successfully:", response.data);
           fetchStockList(); // 添加成功后重新获取股票列表
@@ -123,7 +123,7 @@
     }
 
     function deleteStock(stockCode) {
-      axios.delete(`${baseURL}/${stockCode}`)
+      axios.delete(`${currentUrl}/api/stocks/${stockCode}`)
         .then((response) => {
           console.log("Stock deleted successfully:", response.data);
           fetchStockList(); // 删除成功后重新获取股票列表

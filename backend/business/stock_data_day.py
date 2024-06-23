@@ -65,14 +65,8 @@ def get_stock_data_list(stock_code, count=7):
     day_list = get_trading_day(count)
     formatted_day_list = [item.strftime("%Y-%m-%d") for item in day_list]
 
-    print(f"formatted_day_list={formatted_day_list}")
-    print(f"{formatted_day_list[0]}")
-    print(f"{formatted_day_list[-1]}")
-
     dfs = fetch_stock_data_day(
         stock_code, start_day=formatted_day_list[0], end_day=formatted_day_list[-1]
     )
-
-    print(f"{dfs}")
 
     return dfs

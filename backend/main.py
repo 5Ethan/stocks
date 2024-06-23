@@ -1,17 +1,18 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 
+from database.mysql import execute_query,execute_insert,execute_delete
 from common.data_convert import convert_to_echarts_multi_line_format
 from business.stock_data_day import get_stock_data_list
-from config import PORT, g_stock_info_list
+from config import PORT
 from pydantic import BaseModel
 
 app = FastAPI()
 
 
 class StockInfo(BaseModel):
-    code: str
-    name: str
+    stock_code: int
+    stock_name: str
 
 
 @app.get("/")
@@ -31,25 +32,27 @@ async def read_stock_list():
 
 @app.get("/api/stocks")
 async def get_stocks():
-    return g_stock_info_list
+    query = "SELECT stock_code,stock_name FROM info_stock;"
+    result = await execute_query(query)
+    return result
 
 
 @app.post("/api/stocks")
 async def add_stock(stock: StockInfo):
-    for existing_stock in g_stock_info_list:
-        if existing_stock["code"] == stock.code:
-            continue
-        g_stock_info_list.append(stock.model_dump())
-    return {"b_code": 200, "data": stock}
+    table = 'info_stock'
+    data = {
+        'stock_code': stock.stock_code,
+        'stock_name': stock.stock_name,
+    }
+    return await execute_insert(table, data)
 
 
 @app.delete("/api/stocks/{stock_code}")
 async def delete_stock(stock_code: str):
-    for stock in g_stock_info_list:
-        if stock["code"] == stock_code:
-            g_stock_info_list.remove(stock)
+    table = 'info_stock'
+    condition = f'stock_code = {stock_code}'  
+    return await execute_delete(table, condition)
 
-    return {"b_code": 200, "data": stock}
 
 
 # http://localhost:8888/api/stock/data/603628
