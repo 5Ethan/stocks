@@ -39,7 +39,7 @@ async def add_stock(stock: StockInfo):
     for existing_stock in g_stock_info_list:
         if existing_stock["code"] == stock.code:
             continue
-        g_stock_info_list.append(stock.dict())
+        g_stock_info_list.append(stock.model_dump())
     return {"b_code": 200, "data": stock}
 
 
@@ -52,15 +52,14 @@ async def delete_stock(stock_code: str):
     return {"b_code": 200, "data": stock}
 
 
-# http://localhost:8000/api/stock/data/603628
+# http://localhost:8888/api/stock/data/603628
 @app.get("/api/stock/data/{stock_code}")
 async def stock_data_day(stock_code: str):
     data = get_stock_data_list(stock_code)
-    data_dict = data.to_dict(orient="records")
-    return {"b_code": 200, "data": data_dict}
+    return {"b_code": 200, "data": data}
 
 
-# http://localhost:8000/api/stock/echarts/line/603628
+# http://localhost:8888/api/stock/echarts/line/603628
 @app.get("/api/stock/echarts/line/{stock_code}")
 async def stock_data_day_echart(stock_code: str, last_day_count: int = 14):
     data = get_stock_data_list(stock_code, last_day_count)

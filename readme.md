@@ -1,8 +1,20 @@
 ```shell
-cd /home/stocks/code
+git push aliyun master
 
-cd stocks
 
-cd backend
+```
 
+```shell
+cd /home/stocks/
+
+mkdir code
+mkdir data
+
+cd stocks/backend
+```
+
+```
+docker build -t my-python-app .
+
+docker run -p 8888:8888 my-python-app
 ```
