@@ -1,0 +1,14 @@
+version: '3.3' 
+
+services:
+  stock-python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stock-python-app-container
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+    environment:
+      PYTHONUNBUFFERED: "1"
