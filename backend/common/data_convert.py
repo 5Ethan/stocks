@@ -11,7 +11,7 @@ data_day_columns_to_skip = {
 }
 
 def convert_to_echarts_multi_line_format(df):
-    df=df.applymap(format_df_value)
+    df=df.map(format_df_value)
 
     echarts_data = {"xAxis": df["date"].tolist(), "series": []}
 
